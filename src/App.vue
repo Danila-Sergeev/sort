@@ -2,7 +2,8 @@
   <div>
     <h1>Введите количество дней</h1>
     <input type="number" v-model.number="inputData">
-    <h2>{{ ageString }}</h2>
+    <h2 v-if="inputData <= 2147483647">{{ ageString }}</h2>
+    <h2 v-if="inputData >= 2147483647" style="color: red;">Ваше число превышает максимальное значение</h2>
   </div>
 </template>
 
