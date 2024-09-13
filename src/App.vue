@@ -11,20 +11,36 @@
 import { ref, computed } from 'vue';
 
 const inputData = ref(0);
-
 const ageString = computed(() => {
   const years = Math.floor(inputData.value / 365);
   const remainingDays = inputData.value % 365;
   const months = Math.floor(remainingDays / 30);
   const days = remainingDays % 30;
 
-  const yearString = years === 1 ? 'год' : (years >= 2 && years <= 4) ? 'года' : 'лет';
-  const monthString = months === 1 ? 'месяц' : (months >= 2 && months <= 4) ? 'месяца' : 'месяцев';
-  const dayString = days === 1 ? 'день' : (days >= 2 && days <= 4) ? 'дня' : 'дней';
+  const yearString = getWordForm(years, 'год', 'года', 'лет');
+  const monthString = getWordForm(months, 'месяц', 'месяца', 'месяцев');
+  const dayString = getWordForm(days, 'день', 'дня', 'дней');
 
-  return `Мне ${years} ${yearString} ${months} ${monthString} и ${days} ${dayString}`;
+  // Проверяем, есть ли месяцы или дни
+  if (months > 0 || days > 0) {
+    return `Мне ${years} ${yearString} ${months} ${monthString} и ${days} ${dayString}`;
+  } else {
+    return `Мне ${years} ${yearString}`;
+  }
 });
 
+const getWordForm = (number, singular, genitive2, plural) => {
+  const lastDigit = number % 10;
+  const lastTwoDigits = number % 100;
+
+  if (lastDigit === 1 && lastTwoDigits !== 11) {
+    return singular;
+  } else if (lastDigit >= 2 && lastDigit <= 4 && (lastTwoDigits < 11 || lastTwoDigits > 14)) {
+    return genitive2;
+  } else {
+    return plural;
+  }
+};
 const calculateAge = () => {
   // Можно добавить здесь проверку ввода, например, на отрицательное число
 };
