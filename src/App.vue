@@ -1,62 +1,212 @@
 <template>
   <div>
-    <h1>Введите количество дней</h1>
-    <input type="number" v-model.number="inputData">
-    <h2 v-if="inputData <= 2147483647">{{ ageString }}</h2>
-    <h2 v-if="inputData >= 2147483647" style="color: red;">Ваше число превышает максимальное значение</h2>
+    <div>
+      <label for="array-size" class="label">Размер массива:</label>
+      <input type="number" id="array-size" v-model.number="arraySize" min="10" max="10000">
+    </div>
+    <div>
+      <label for="range-min" class="label">Минимальное значение:</label>
+      <input type="number" id="range-min" v-model.number="rangeMin" min="-100">
+    </div>
+    <div>
+      <label for="range-max" class="label">Максимальное значение:</label>
+      <input type="number" id="range-max" v-model.number="rangeMax" max="100">
+    </div>
+    <button @click="generateArray">Сгенерировать массив</button>
+    <div v-if="array.length > 0">
+      <h3>Исходный массив:</h3>
+      <ul class="array-list">
+        <li v-for="item in array" :key="item" class="array-item">{{ item }}</li>
+      </ul>
+      <div v-for="(algorithm, name) in algorithms" :key="name" class="algorithm-section">
+        <h4>{{ name }}:</h4>
+        <button @click="sortArray(algorithm, name)" class="sort-button">Сортировать</button>
+        <ul v-if="sortedArrays[name]" class="array-list">
+          <h3>Отсортированный массив:</h3>
+          <li v-for="item in sortedArrays[name]" :key="item" class="array-item">{{ item }}</li>
+        </ul>
+        <div v-if="sortedArrays[name]">
+          <p>Время сортировки: {{ sortedTimes[name] }} мс</p>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
-<script setup>
-import { ref, computed } from 'vue';
+<script>
+export default {
+  data() {
+    return {
+      arraySize: 100,
+      rangeMin: -100,
+      rangeMax: 100,
+      array: [],
+      sortedArrays: {},
+      sortedTimes: {},
+      algorithms: {
+        'Пузырьковая сортировка': this.bubbleSort,
+        'Быстрая сортировка': this.quickSort,
+        'Сортировка слиянием': this.mergeSort,
+      },
+    };
+  },
+  methods: {
+    generateArray() {
+      this.array = Array.from({ length: this.arraySize }, () =>
+        Math.floor(Math.random() * (this.rangeMax - this.rangeMin + 1)) + this.rangeMin
+      );
+      this.sortedArrays = {};
+      this.sortedTimes = {};
+    },
+    sortArray(algorithm, name) {
+      const startTime = performance.now();
 
-const inputData = ref(0);
-const ageString = computed(() => {
-  const years = Math.floor(inputData.value / 365);
-  const remainingDays = inputData.value % 365;
-  const months = Math.floor(remainingDays / 30);
-  const days = remainingDays % 30;
+      // Создание копии массива перед сортировкой
+      const arrToSort = [...this.array]; // Используем spread operator для создания копии
 
-  const yearString = getWordForm(years, 'год', 'года', 'лет');
-  const monthString = getWordForm(months, 'месяц', 'месяца', 'месяцев');
-  const dayString = getWordForm(days, 'день', 'дня', 'дней');
+      const sortedArray = algorithm(arrToSort); 
+      const endTime = performance.now();
+      this.sortedArrays[name] = sortedArray; 
+      this.sortedTimes[name] = endTime - startTime;
 
-  // Проверяем, есть ли месяцы или дни
-  if (months > 0 || days > 0) {
-    return `Мне ${years} ${yearString} ${months} ${monthString} и ${days} ${dayString}`;
-  } else {
-    return `Мне ${years} ${yearString}`;
-  }
-});
-
-const getWordForm = (number, singular, genitive2, plural) => {
-  const lastDigit = number % 10;
-  const lastTwoDigits = number % 100;
-
-  if (lastDigit === 1 && lastTwoDigits !== 11) {
-    return singular;
-  } else if (lastDigit >= 2 && lastDigit <= 4 && (lastTwoDigits < 11 || lastTwoDigits > 14)) {
-    return genitive2;
-  } else {
-    return plural;
-  }
-};
-const calculateAge = () => {
-  // Можно добавить здесь проверку ввода, например, на отрицательное число
+      this.$nextTick(() => {
+        // Обновление DOM после завершения обработки данных
+      });
+    },
+    bubbleSort(arr) {
+      // Пузырьковая сортировка:
+      for (let i = 0; i < arr.length - 1; i++) {
+        for (let j = 0; j < arr.length - i - 1; j++) {
+          if (arr[j] > arr[j + 1]) {
+            [arr[j], arr[j + 1]] = [arr[j + 1], arr[j]]; // Обмен элементов, если они в неправильном порядке
+          }
+        }
+      }
+      return arr; 
+    },
+    quickSort(arr) {
+      // Быстрая сортировка:
+      if (arr.length <= 1) {
+        return arr;
+      }
+      const pivotIndex = Math.floor(arr.length / 2); // Выбираем опорный элемент (pivot)
+      const pivot = arr[pivotIndex];
+      let i = 0;
+      let j = arr.length - 1;
+      while (i < j) {
+        // Двигаем i влево пока не найдем элемент больше pivot
+        while (arr[i] < pivot) {
+          i++;
+        }
+        // Двигаем j вправо пока не найдем элемент меньше pivot
+        while (arr[j] > pivot) {
+          j--;
+        }
+        // Если i < j, меняем элементы местами
+        if (i < j) {
+          [arr[i], arr[j]] = [arr[j], arr[i]];
+          i++;
+          j--;
+        }
+      }
+      // Рекурсивно сортируем левую и правую части
+      return [...this.quickSort(arr.slice(0, i)), pivot, ...this.quickSort(arr.slice(i + 1))];
+    },
+    mergeSort(arr) {
+      // Сортировка слиянием:
+      if (arr.length <= 1) {
+        return arr;
+      }
+      const mid = Math.floor(arr.length / 2); 
+      const left = this.mergeSort(arr.slice(0, mid));
+      const right = this.mergeSort(arr.slice(mid));
+      return this.merge(left, right);
+    },
+    merge(left, right) {
+      // Слияние двух отсортированных массивов:
+      const result = [];
+      let i = 0;
+      let j = 0;
+      while (i < left.length && j < right.length) {
+        if (left[i] <= right[j]) {
+          result.push(left[i]); 
+          i++; 
+        } else {
+          result.push(right[j]); 
+          j++; 
+        }
+      }
+      return result.concat(left.slice(i)).concat(right.slice(j)); 
+    },
+  },
 };
 </script>
 
 <style scoped>
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
+.label{
+  margin-right: 10px;
 }
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 600px;
+  margin: 50px auto;
+  padding: 20px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
 }
-.logo.vue:hover {
-  filter: drop-shadow(0 0 2em #42b883aa);
+
+.form-group {
+  margin-bottom: 15px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 5px;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 3px;
+}
+
+.sort-button {
+  padding: 10px 20px;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 3px;
+  cursor: pointer;
+}
+
+.array-list {
+  list-style: none;
+  padding: 0;
+  margin-bottom: 15px;
+  overflow-wrap: break-word; /* Разрешает переносы слов внутри строки */
+  word-break: break-all; /* Разрешает разрыв слов на границе слова */
+  overflow-x: auto;
+  max-width: 500px;
+
+}
+
+.array-list li {
+  display: inline-block; /* Отображает элементы списка в строке */
+  margin-right: 5px; 
+}
+
+.array-item {
+  display: inline-block;
+  margin-right: 5px;
+}
+
+.algorithm-section {
+  margin-bottom: 20px;
+  border: 1px solid #eee;
+  padding: 10px;
+  border-radius: 5px;
 }
 </style>
