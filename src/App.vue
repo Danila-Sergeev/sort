@@ -86,21 +86,21 @@ export default {
       return arr; 
     },
     quickSort(arr) {
-      // Быстрая сортировка:
+      // Быстрая сортировка O(nlogn):
       if (arr.length <= 1) {
         return arr;
       }
-      const pivotIndex = Math.floor(arr.length / 2); // Выбираем опорный элемент (pivot)
-      const pivot = arr[pivotIndex];
+      const midIndex = Math.floor(arr.length / 2); // Выбираем опорный элемент (mid)
+      const mid = arr[midIndex];
       let i = 0;
       let j = arr.length - 1;
       while (i < j) {
-        // Двигаем i влево пока не найдем элемент больше pivot
-        while (arr[i] < pivot) {
+        // Двигаем i влево пока не найдем элемент больше mid
+        while (arr[i] < mid) {
           i++;
         }
-        // Двигаем j вправо пока не найдем элемент меньше pivot
-        while (arr[j] > pivot) {
+        // Двигаем j вправо пока не найдем элемент меньше mid
+        while (arr[j] > mid) {
           j--;
         }
         // Если i < j, меняем элементы местами
@@ -111,10 +111,10 @@ export default {
         }
       }
       // Рекурсивно сортируем левую и правую части
-      return [...this.quickSort(arr.slice(0, i)), pivot, ...this.quickSort(arr.slice(i + 1))];
+      return [...this.quickSort(arr.slice(0, i)), mid, ...this.quickSort(arr.slice(i + 1))];
     },
     mergeSort(arr) {
-      // Сортировка слиянием:
+      // Сортировка слиянием  O(N log N:
       if (arr.length <= 1) {
         return arr;
       }
@@ -141,7 +141,7 @@ export default {
     },
 
     insertionSort(arr){
-        for (let i = 1; i < arr.length; i++) {    /* [5, 2, 4, 6, 1, 3], [2, 5, 4, 6, 1, 3]  */
+        for (let i = 1; i < arr.length; i++) {    /* [5, 2, 4, 6, 1, 3], [2, 5, 4, 6, 1, 3]  O(n^2)*/ 
         let compare = arr[i];  /* compare = 2  compare = 4*/
         let j = i - 1;  /* j = 0 j = 1*/
         while (j >= 0 && arr[j] > compare) { /* 0 >= 0 && 5 > 2,  */
