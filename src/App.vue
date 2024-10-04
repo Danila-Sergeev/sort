@@ -47,6 +47,7 @@ export default {
         'Пузырьковая сортировка': this.bubbleSort,
         'Быстрая сортировка': this.quickSort,
         'Сортировка слиянием': this.mergeSort,
+        'Сортировка вставками': this.insertionSort
       },
     };
   },
@@ -138,6 +139,19 @@ export default {
       }
       return result.concat(left.slice(i)).concat(right.slice(j)); 
     },
+
+    insertionSort(arr){
+        for (let i = 1; i < arr.length; i++) {    /* [5, 2, 4, 6, 1, 3], [2, 5, 4, 6, 1, 3]  */
+        let compare = arr[i];  /* compare = 2  compare = 4*/
+        let j = i - 1;  /* j = 0 j = 1*/
+        while (j >= 0 && arr[j] > compare) { /* 0 >= 0 && 5 > 2,  */
+          arr[j + 1] = arr[j]; /* arr[j + 1] = 5 [2, 5, 4, 6, 1, 3]*/
+          j--;  /* j = -1 */
+        }
+        arr[j + 1] = compare; /* arr[0] = 2 */
+      }
+      return arr;
+    }
   },
 };
 </script>
@@ -190,6 +204,8 @@ export default {
   word-break: break-all; /* Разрешает разрыв слов на границе слова */
   overflow-x: auto;
   max-width: 500px;
+  overflow-y: auto;
+  height: 200px;
 
 }
 
